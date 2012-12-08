@@ -11,6 +11,5 @@ setup(
     author_email='shawn@milochik.com',
     zip_safe=False,
     keywords='fixed width',
-    test_suite="nose.collector",
-    tests_require="nose",
+    test_suite="fixedwidth.tests",
 )

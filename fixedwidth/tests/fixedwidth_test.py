@@ -3,7 +3,7 @@
 import unittest
 from copy import deepcopy
 
-from fixedwidth import FixedWidth
+from ..fixedwidth import FixedWidth
 
 SAMPLE_CONFIG = {
 
@@ -117,5 +117,3 @@ class TestFixedWidth(unittest.TestCase):
         self.assertEquals(values['last_name'], 'Smith')
         self.assertEquals(values['age'], 32)
         self.assertEquals(values['meal'], 'vegetarian')
-
-unittest.main()
