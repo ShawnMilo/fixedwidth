@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='FixedWidth',
-    version='0.11',
+    version='0.12',
     description='Two-way fixed-width / Python dict converter.',
     packages=['fixedwidth',],
     license='BSD',
