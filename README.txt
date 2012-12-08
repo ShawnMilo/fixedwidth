@@ -1,0 +1,1 @@
+Easy two-way conversion between Python dictionaries and fixed-width files.
