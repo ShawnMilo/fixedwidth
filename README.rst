@@ -1,4 +1,6 @@
 Easy two-way conversion between Python dictionaries and fixed-width files.
+The FixedWidth class has been used in production without modification for 
+over two years.
 
 Requires a 'config' dictonary. See unit tests for full example.
 
