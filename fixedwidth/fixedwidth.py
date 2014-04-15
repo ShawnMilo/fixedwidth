@@ -2,7 +2,6 @@
 
 from decimal import Decimal
 
-
 class FixedWidth(object):
 
     """
