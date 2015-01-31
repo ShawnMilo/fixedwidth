@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
+"""
+The FixedWidth class definition.
+"""
+
 from decimal import Decimal
 
 class FixedWidth(object):
-
     """
     Class for converting between Python dictionaries and fixed-width
     strings.
@@ -21,8 +24,6 @@ class FixedWidth(object):
         Alignment and padding are required.
 
         'required' must have a value.
-
-    }
 
     """
 
@@ -49,11 +50,12 @@ class FixedWidth(object):
 
             #required values
             if any([x not in value for x in (
-                'type', 'required', 'padding', 'alignment', 'start_pos')]):
-                raise ValueError("Not all required values provided for field %s" % (key,))
+                    'type', 'required', 'padding', 'alignment', 'start_pos')]):
+                raise ValueError(
+                    "Not all required values provided for field %s" % (key,))
 
             #end position or length required
-            if ('end_pos' not in value and 'length' not in value):
+            if 'end_pos' not in value and 'length' not in value:
                 raise ValueError("And end position or length is required for field %s" % (key,))
 
             #end position and length must match if both are specified
