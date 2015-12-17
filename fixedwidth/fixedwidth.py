@@ -4,7 +4,7 @@
 The FixedWidth class definition.
 """
 
-from decimal import Decimal
+from decimal import *
 
 class FixedWidth(object):
     """
@@ -183,7 +183,38 @@ class FixedWidth(object):
         for field_name in [x[1] for x in self.ordered_fields]:
 
             if field_name in self.data:
+
                 datum = str(self.data[field_name])
+
+                if self.config[field_name]['type'] == 'decimal':
+
+                    if 'precision' in self.config[field_name]:
+
+                        precision = self.config[field_name]['precision']
+                        sep = self.config[field_name].get('separator','.')
+
+                        decimal_context = Context(
+                            prec=256, rounding=ROUND_HALF_DOWN,
+                        )
+                        setcontext(decimal_context)
+
+                        if sep is None:
+
+                            multiplier = pow(10.0,precision)
+
+                            datum = str(
+                                self.data[field_name] * Decimal(multiplier)
+                            ).split('.')[0]
+
+                        else:
+
+                            chunks = str(self.data[field_name]).split('.')
+                            datum = '{}{}{}'.format(
+                                chunks[0],
+                                sep,
+                                chunks[1][:precision]
+                            )
+
             else:
                 datum = ''
 
