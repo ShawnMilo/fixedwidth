@@ -57,7 +57,7 @@ SAMPLE_CONFIG = {
         "length": 20,
         "alignment": "left",
         "required": False
-    },
+    }
 }
 
 class TestFixedWidth(unittest.TestCase):
