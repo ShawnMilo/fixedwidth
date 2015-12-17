@@ -43,3 +43,34 @@ Notes:
 
 #.  Alignment and padding are required.
 
+#.  If 'decimal' type is used, there are two other optional parameters,
+    'precision' and 'separator'. 
+        
+        a. 'precision' is a integer that specifies how many places the decimal needs 
+        to be rounded to. 
+        
+        b. 'separator' can be a string or None. If None, the resultant value will
+        not have a separator, the value will be offset by the number of precision
+        decimals for example::
+            
+            CONFIG = {
+                "money": {
+                    "type": "decimal",
+                    "start_pos": 1,
+                    "padding": "0",
+                    "end_pos": 10,
+                    "alignment": "right",
+                    "required": True,
+                    "precision": 4,
+                    "separator": None,
+                }
+            }
+            
+            fw = FixedWidth(CONFIG,**{'money':Decimal('1.0245678')})
+            
+            print fw.line
+            '0000010245\r\n'
+
+            
+            
+        
