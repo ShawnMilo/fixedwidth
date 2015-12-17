@@ -99,6 +99,20 @@ class FixedWidth(object):
                     raise ValueError("Default value for %s is not a valid %s" \
                         % (key, value['type']))
 
+            # If value is a decimal type, check that optional decimal args are
+            # valid.
+            if value['type'] == 'decimal':
+                if 'precision' in value:
+                    if (
+                        not isinstance(value['precision'],int) or
+                        value['precision'] < 0
+                    ):
+                        raise ValueError("Precision must be positive integer")
+
+                if 'separator' in value:
+                    if value['separator'] not in [None,',','.']:
+                        raise ValueError("Separator must be: ',','.', or None")
+
         #ensure start_pos and end_pos or length is correct in config
         current_pos = 1
         for start_pos, field_name in self.ordered_fields:
