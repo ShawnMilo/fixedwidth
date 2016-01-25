@@ -1,10 +1,10 @@
-#!/usr/bin/env python
-
 """
 The FixedWidth class definition.
 """
 
 from decimal import Decimal
+from six import string_types
+
 
 class FixedWidth(object):
     """
@@ -125,7 +125,7 @@ class FixedWidth(object):
         """
 
         type_tests = {
-            'string': lambda x: isinstance(x, str) or isinstance(x, unicode),
+            'string': lambda x: isinstance(x, string_types),
             'decimal': lambda x: isinstance(x, Decimal),
             'integer': lambda x: str(x).isdigit(),
             'numeric': lambda x: str(x).isdigit(),
