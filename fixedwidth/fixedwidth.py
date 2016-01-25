@@ -35,6 +35,7 @@ class FixedWidth(object):
             kwargs: optional, dict of values for the FixedWidth object
         """
 
+        self.line_end = kwargs.pop('line_end', '\r\n')
         self.config = config
 
         self.data = {}
@@ -198,7 +199,7 @@ class FixedWidth(object):
 
             line += datum
 
-        return line + '\r\n'
+        return line + self.line_end
 
     is_valid = property(validate)
 
