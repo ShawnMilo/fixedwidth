@@ -1,10 +1,9 @@
-#!/usr/bin/env python
-
 """
 The FixedWidth class definition.
 """
 
 from decimal import *
+from six import string_types
 
 class FixedWidth(object):
     """
@@ -35,6 +34,7 @@ class FixedWidth(object):
             kwargs: optional, dict of values for the FixedWidth object
         """
 
+        self.line_end = kwargs.pop('line_end', '\r\n')
         self.config = config
 
         self.data = {}
@@ -139,7 +139,7 @@ class FixedWidth(object):
         """
 
         type_tests = {
-            'string': lambda x: isinstance(x, str) or isinstance(x, unicode),
+            'string': lambda x: isinstance(x, string_types),
             'decimal': lambda x: isinstance(x, Decimal),
             'integer': lambda x: str(x).isdigit(),
             'numeric': lambda x: str(x).isdigit(),
@@ -217,7 +217,7 @@ class FixedWidth(object):
                 sep,
                 chunks[1][:precision]
             )
-        
+
         return datum
 
 
@@ -256,7 +256,7 @@ class FixedWidth(object):
 
             line += datum
 
-        return line + '\r\n'
+        return line + self.line_end
 
     is_valid = property(validate)
 
