@@ -2,9 +2,8 @@
 The FixedWidth class definition.
 """
 
-from decimal import Decimal
+from decimal import *
 from six import string_types
-
 
 class FixedWidth(object):
     """
@@ -100,6 +99,20 @@ class FixedWidth(object):
                     raise ValueError("Default value for %s is not a valid %s" \
                         % (key, value['type']))
 
+            # If value is a decimal type, check that optional decimal args are
+            # valid.
+            if value['type'] == 'decimal':
+                if 'precision' in value:
+                    if (
+                        not isinstance(value['precision'],int) or
+                        value['precision'] < 0
+                    ):
+                        raise ValueError("Precision must be positive integer")
+
+                if 'separator' in value:
+                    if value['separator'] not in [None,',','.']:
+                        raise ValueError("Separator must be: ',','.', or None")
+
         #ensure start_pos and end_pos or length is correct in config
         current_pos = 1
         for start_pos, field_name in self.ordered_fields:
@@ -142,10 +155,18 @@ class FixedWidth(object):
                     but the value is not of that type." \
                     % (field_name, parameters['type']))
 
-                #ensure value passed in is not too long for the field
-                if len(str(self.data[field_name])) > parameters['length']:
+                if (
+                    parameters['type'] == 'decimal' and
+                    'precision' in parameters):
+
+                    datum = self._build_decimal_chunk(field_name)
+                else:
+                    datum = str(self.data[field_name])
+
+                 #ensure value passed in is not too long for the field
+                if len(datum) > parameters['length']:
                     raise ValueError("%s is too long (limited to %d \
-                        characters)." % (field_name, parameters['length']))
+                    characters)." % (field_name, parameters['length']))
 
                 if 'value' in parameters \
                     and parameters['value'] != self.data[field_name]:
@@ -170,6 +191,36 @@ class FixedWidth(object):
 
         return True
 
+    def _build_decimal_chunk(self,field_name):
+
+        precision = self.config[field_name]['precision']
+        sep = self.config[field_name].get('separator','.')
+
+        decimal_context = Context(
+            prec=256, rounding=ROUND_HALF_DOWN,
+        )
+        setcontext(decimal_context)
+
+        if sep is None:
+
+            multiplier = pow(10.0,precision)
+
+            datum = str(
+                self.data[field_name] * Decimal(multiplier)
+            ).split('.')[0]
+
+        else:
+
+            chunks = str(self.data[field_name]).split('.')
+            datum = '{}{}{}'.format(
+                chunks[0],
+                sep,
+                chunks[1][:precision]
+            )
+
+        return datum
+
+
     def _build_line(self):
 
         """
@@ -184,7 +235,13 @@ class FixedWidth(object):
         for field_name in [x[1] for x in self.ordered_fields]:
 
             if field_name in self.data:
+
                 datum = str(self.data[field_name])
+
+                if (self.config[field_name]['type'] == 'decimal' and
+                    'precision' in self.config[field_name]):
+                    datum = self._build_decimal_chunk(field_name)
+
             else:
                 datum = ''
 

@@ -6,6 +6,7 @@ Tests for the FixedWidth class.
 
 import unittest
 from copy import deepcopy
+from decimal import Decimal
 
 from ..fixedwidth import FixedWidth
 
@@ -57,9 +58,7 @@ SAMPLE_CONFIG = {
         "alignment": "left",
         "required": False
     }
-
 }
-
 
 class TestFixedWidth(unittest.TestCase):
     """
@@ -83,6 +82,53 @@ class TestFixedWidth(unittest.TestCase):
         good = (
             "Michael   Smith                              "
             "032vegetarian          \r\n"
+        )
+
+        self.assertEquals(fw_string, good)
+
+    def test_decimal(self):
+        """
+        Test a simple, valid example.
+        """
+
+        fw_config = deepcopy(SAMPLE_CONFIG)
+
+        fw_config["cost"] = {
+            "type": "decimal",
+            "start_pos": 69,
+            "default": Decimal("1.02093982"),
+            "padding": "0",
+            "end_pos": 78,
+            "length": 10,
+            "alignment": "right",
+            "required": False,
+            "precision": 4
+        }
+
+        fw_config["cost_mainframe"] = {
+            "type": "decimal",
+            "start_pos": 79,
+            "default": Decimal("1.02093982"),
+            "padding": "0",
+            "end_pos": 88,
+            "length": 10,
+            "alignment": "right",
+            "required": False,
+            "precision": 4,
+            "separator": None
+        }
+
+        fw_obj = FixedWidth(fw_config)
+        fw_obj.update(
+            last_name="Smith", first_name="Michael",
+            age=32, meal="vegetarian"
+        )
+
+        fw_string = fw_obj.line
+
+        good = (
+            "Michael   Smith                              "
+            "032vegetarian          00001.02090000010209\r\n"
         )
 
         self.assertEquals(fw_string, good)
@@ -125,3 +171,6 @@ class TestFixedWidth(unittest.TestCase):
         self.assertEquals(values["last_name"], "Smith")
         self.assertEquals(values["age"], 32)
         self.assertEquals(values["meal"], "vegetarian")
+
+if __name__ == '__main__':
+    unittest.main()
