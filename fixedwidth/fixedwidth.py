@@ -3,7 +3,7 @@ The FixedWidth class definition.
 """
 
 from decimal import Decimal
-from six import string_types
+from six import string_types, integer_types
 
 
 class FixedWidth(object):
@@ -128,7 +128,7 @@ class FixedWidth(object):
         type_tests = {
             'string': lambda x: isinstance(x, string_types),
             'decimal': lambda x: isinstance(x, Decimal),
-            'integer': lambda x: str(x).isdigit(),
+            'integer': lambda x: isinstance(x, integer_types),
             'numeric': lambda x: str(x).isdigit(),
         }
 
