@@ -95,6 +95,9 @@ class FixedWidth(object):
                         can not have a default value" % (key,))
 
                 #ensure default value provided matches type
+                if value['type'] == 'decimal':
+                    value['default'] = Decimal(value['default'])
+
                 types = {'string': str, 'decimal': Decimal, 'integer': int}
                 if not isinstance(value['default'], types[value['type']]):
                     raise ValueError("Default value for %s is not a valid %s" \

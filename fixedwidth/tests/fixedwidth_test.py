@@ -86,6 +86,16 @@ SAMPLE_CONFIG = {
         "padding": " "
         },
 
+    "temperature": {
+        "required": False,
+        "type": "decimal",
+        "default": "98.6",
+        "start_pos": 94,
+        "end_pos": 100,
+        "alignment": "right",
+        "padding": " "
+        },
+
 }
 
 
@@ -111,7 +121,7 @@ class TestFixedWidth(unittest.TestCase):
 
         good = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100\r\n"
+            "032vegetarian             40.7128   -74.0059-100   98.6\r\n"
         )
 
         self.assertEquals(fw_string, good)
@@ -147,7 +157,7 @@ class TestFixedWidth(unittest.TestCase):
         fw_obj = FixedWidth(fw_config)
         fw_obj.line = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100"
+            "032vegetarian             40.7128   -74.0059-100  98.6"
         )
 
         values = fw_obj.data
@@ -158,3 +168,7 @@ class TestFixedWidth(unittest.TestCase):
         self.assertEquals(values["latitude"], Decimal('40.7128'))
         self.assertEquals(values["longitude"], Decimal('-74.0059'))
         self.assertEquals(values["elevation"], -100)
+        self.assertEquals(values["temperature"], Decimal('98.6'))
+
+if __name__ == '__main__':
+    unittest.main()
