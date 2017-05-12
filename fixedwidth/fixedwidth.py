@@ -2,7 +2,7 @@
 The FixedWidth class definition.
 """
 
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from six import string_types, integer_types
 
 
@@ -27,8 +27,9 @@ class FixedWidth(object):
 
     """
 
-    def __init__(self, config, **kwargs):
+    TYPE_MAPPING = {'string': str, 'decimal': Decimal, 'integer': int}
 
+    def __init__(self, config, **kwargs):
         """
         Arguments:
             config: required, dict defining fixed-width format
@@ -95,10 +96,19 @@ class FixedWidth(object):
                         can not have a default value" % (key,))
 
                 #ensure default value provided matches type
-                types = {'string': str, 'decimal': Decimal, 'integer': int}
-                if not isinstance(value['default'], types[value['type']]):
-                    raise ValueError("Default value for %s is not a valid %s" \
-                        % (key, value['type']))
+                default_value = value['default']
+
+                if not isinstance(default_value, FixedWidth.TYPE_MAPPING[value['type']]):
+
+                    #try to convert the default to match type if default is a string
+                    if isinstance(default_value, str):
+                        converted_default = self._convert_default_str(key)
+
+                        # store converted value, will be used to overrid the 'default' field
+                        self.config[key]['converted_default'] = converted_default
+                    else:
+                        raise ValueError("Default value for %s is not a valid %s" \
+                                % (key, value['type']))
 
         #ensure start_pos and end_pos or length is correct in config
         current_pos = 1
@@ -160,8 +170,10 @@ class FixedWidth(object):
                     raise ValueError("Field %s is required, but was \
                         not provided." % (field_name,))
 
-                #if there's a default value
-                if 'default' in parameters:
+                #if there's a default value or converted value
+                if 'converted_default' in parameters:
+                    self.data[field_name] = parameters['converted_default']
+                elif 'default' in parameters:
                     self.data[field_name] = parameters['default']
 
                 #if there's a hard-coded value in the config
@@ -171,7 +183,6 @@ class FixedWidth(object):
         return True
 
     def _build_line(self):
-
         """
         Returns a fixed-width line made up of self.data, using
         self.config.
@@ -227,3 +238,24 @@ class FixedWidth(object):
         return self.data
 
     line = property(_build_line, _string_to_dict)
+
+    def _convert_default_str(self, field_name):
+        """Convert default value to the specified type if value is a string
+
+        Args:
+            field_name: The field with default to convert
+
+        Returns:
+            The converted value
+
+        Raises:
+            ValueError: If value could not be converted to field's specified type
+        """
+        field = self.config[field_name]
+        desired_type = FixedWidth.TYPE_MAPPING[field['type']]
+
+        try:
+            return desired_type(field['default'])
+        except InvalidOperation:
+            raise ValueError("Unable to convert %s default value to %s"\
+                    % (field_name, desired_type))
