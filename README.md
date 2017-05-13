@@ -8,7 +8,7 @@ reading the spec document.
 
 Requires a 'config' dictonary. See unit tests for full example.
 
-Small example::
+Small example
 
     SAMPLE_CONFIG = {
 
@@ -34,14 +34,13 @@ Small example::
 
 Notes:
 
-#.  A field must have a start_pos and either an end_pos or a length.
-    If both an end_pos and a length are provided, they must not conflict.
+* A field must have a start_pos and either an end_pos or a length. If both an end_pos and a length are provided, they must not conflict.
 
-#.  A field may not have a default value if it is required.
+* A field may not have a default value if it is required.
 
-#.  Supported types are string, integer, and decimal.
+* Supported types are string, integer, and decimal.
 
-#.  Alignment and padding are required.
+* Alignment and padding are required.
 
 
 License: BSD
