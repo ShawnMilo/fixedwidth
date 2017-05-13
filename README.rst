@@ -43,3 +43,5 @@ Notes:
 
 #.  Alignment and padding are required.
 
+
+License: BSD
