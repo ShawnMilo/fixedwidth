@@ -170,5 +170,54 @@ class TestFixedWidth(unittest.TestCase):
         self.assertEquals(values["elevation"], -100)
         self.assertEquals(values["temperature"], Decimal('98.6'))
 
+    def test_truncate(self):
+        fw_config = deepcopy({
+            "field_truncate": {
+                "required": True,
+                'truncate': True,
+                "type": "string",
+                "start_pos": 1,
+                "length": 8,
+                "alignment": "left",
+                "padding": " "
+            },
+            "field_truncate_longer": {
+                "required": True,
+                'truncate': True,
+                "type": "string",
+                "start_pos": 9,
+                "length": 8,
+                "alignment": "left",
+                "padding": " "
+            },
+            "field_truncate_int": {
+                "required": True,
+                'truncate': True,
+                "type": "numeric",
+                "start_pos": 17,
+                "length": 3,
+                "alignment": "left",
+                "padding": " "
+            },
+            "field_truncate_int_longer": {
+                "required": True,
+                'truncate': True,
+                "type": "numeric",
+                "start_pos": 20,
+                "length": 5,
+                "alignment": "left",
+                "padding": " "
+            }
+        })
+        fw_obj = FixedWidth(fw_config, line_end='')
+
+        fw_obj.update(
+            field_truncate='1234567890',
+            field_truncate_longer='1234',
+            field_truncate_int=1234,
+            field_truncate_int_longer=1234
+        )
+        self.assertEquals(fw_obj.line, '123456781234    1231234 ')
+
 if __name__ == '__main__':
     unittest.main()
