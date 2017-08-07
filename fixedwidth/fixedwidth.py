@@ -147,8 +147,11 @@ class FixedWidth(object):
 
                 #ensure value passed in is not too long for the field
                 if len(str(self.data[field_name])) > parameters['length']:
-                    raise ValueError("%s is too long (limited to %d \
-                        characters)." % (field_name, parameters['length']))
+                    if 'truncate' in parameters and parameters['truncate']:
+                        self.data[field_name] = str(self.data[field_name])[:parameters['length']]
+                    else:
+                        raise ValueError("%s is too long (limited to %d \
+                            characters)." % (field_name, parameters['length']))
 
                 if 'value' in parameters \
                     and parameters['value'] != self.data[field_name]:
