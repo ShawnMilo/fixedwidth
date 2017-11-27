@@ -159,7 +159,7 @@ class FixedWidth(object):
             else: #no value passed in
 
                 #if required but not provided
-                if parameters['required'] and ('value' not in parameters):
+                if parameters['required'] and ('value' not in parameters) and self.data[field_name] is not None:
                     raise ValueError("Field %s is required, but was \
                         not provided." % (field_name,))
 
