@@ -194,7 +194,7 @@ class TestFixedWidth(unittest.TestCase):
         self.assertEqual(values["elevation"], -100)
         self.assertEqual(values["temperature"], Decimal('98.6'))
         self.assertEqual(values["decimal_precision"], Decimal('1.000'))
-        self.assertEquals(values["date"], datetime.datetime.strptime('20170101', '%Y%m%d'))
+        self.assertEqual(values["date"], datetime.datetime.strptime('20170101', '%Y%m%d'))
 
     def test_required_is_none(self):
         """
@@ -208,6 +208,41 @@ class TestFixedWidth(unittest.TestCase):
             longitude=Decimal('-74.0059'), elevation=None,
         )
         self.assertRaises(Exception, fw_obj.validate)
+
+    def test_optional_is_none(self):
+        """
+        Pass in a None value and raise exception.
+        """
+        fw_config = deepcopy(SAMPLE_CONFIG)
+        fw_obj = FixedWidth(fw_config)
+        fw_obj.update(
+            last_name="Smith", first_name="Michael",
+            age=32, meal="vegetarian", latitude=Decimal('40.7128'),
+            longitude=Decimal('-74.0059'), elevation=-100, decimal_precision=None,
+        )
+
+        good = (
+            "Michael   Smith                              "
+            "032vegetarian             40.7128   -74.0059-100   98.6201701011.000\r\n"
+        )
+
+        self.assertEqual(fw_obj.line, good)
+
+    def test_fw_contains_empty_value(self):
+        """
+        Pass in a line with empty value and test that default gets set.
+        """
+
+        fw_config = deepcopy(SAMPLE_CONFIG)
+
+        fw_obj = FixedWidth(fw_config)
+        fw_obj.line = (
+            "Michael   Smith                              "
+            "032vegetarian             40.7128   -74.0059-100   98.620170101     \r\n"
+        )
+
+
+        self.assertEqual(fw_obj.data["decimal_precision"], Decimal(1))
 
 if __name__ == '__main__':
     unittest.main()

@@ -162,6 +162,9 @@ class FixedWidth(object):
 
             if field_name in self.data:
 
+                if self.data[field_name] is None and 'default' in parameters:
+                    self.data[field_name] = parameters['default']
+
                 #make sure passed in value is of the proper type
                 if not type_tests[parameters['type']](self.data[field_name]):
                     raise ValueError("%s is defined as a %s, \
@@ -270,8 +273,12 @@ class FixedWidth(object):
                 'date': lambda x: datetime.strptime(x, self.config[field_name]['format']),
             }
 
-            self.data[field_name] = conversion[self.config[field_name]\
-                ['type']](fw_string[start_pos - 1:self.config[field_name]['end_pos']])
+            row = fw_string[start_pos - 1:self.config[field_name]['end_pos']]
+            if row.strip() == '' and 'default' in self.config[field_name]:
+                # Use default value if row is empty
+                self.data[field_name] = self.config[field_name]['default']
+            else:
+                self.data[field_name] = conversion[self.config[field_name]['type']](row)
 
         return self.data
 
