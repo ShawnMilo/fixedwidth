@@ -30,6 +30,16 @@ Small example
             'padding': ' '
         },
 
+        'date': {
+            'required': True,
+            'type': 'date',
+            'start_pos': 11,
+            'end_pos': 30,
+            'alignment': 'left',
+            'format': '%Y%m%d',
+            'padding': ' '
+        },
+
     }
 
 Notes:
