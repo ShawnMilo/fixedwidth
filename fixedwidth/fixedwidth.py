@@ -182,6 +182,10 @@ class FixedWidth(object):
                 if 'value' in parameters:
                     self.data[field_name] = parameters['value']
 
+            if parameters['required'] and self.data[field_name] is None:
+                # None gets checked last because it may be set with a default value
+                raise ValueError("None value not allowed for %s" % (field_name))
+
         return True
 
     def _get_decimal_data(self, field_name):
@@ -212,7 +216,7 @@ class FixedWidth(object):
         for field_name in [x[1] for x in self.ordered_fields]:
 
             if field_name in self.data:
-                datum = str(self.format_functions[(self.config[field_name]['type'])](field_name))
+                datum = str(self.format_functions[(self.config[field_name]['type'])](field_name) if not None else ')
             else:
                 datum = ''
 

@@ -182,5 +182,18 @@ class TestFixedWidth(unittest.TestCase):
         self.assertEqual(values["temperature"], Decimal('98.6'))
         self.assertEqual(values["decimal_precision"], Decimal('1.000'))
 
+    def test_required_is_none(self):
+        """
+        Pass in a None value and raise exception.
+        """
+        fw_config = deepcopy(SAMPLE_CONFIG)
+        fw_obj = FixedWidth(fw_config)
+        fw_obj.update(
+            last_name="Smith", first_name="Michael",
+            age=32, meal="vegetarian", latitude=Decimal('40.7128'),
+            longitude=Decimal('-74.0059'), elevation=None,
+        )
+        self.assertRaises(Exception, fw_obj.validate)
+
 if __name__ == '__main__':
     unittest.main()
