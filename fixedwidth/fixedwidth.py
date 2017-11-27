@@ -159,7 +159,7 @@ class FixedWidth(object):
             else: #no value passed in
 
                 #if required but not provided
-                if parameters['required'] and ('value' not in parameters) and self.data[field_name] is not None:
+                if parameters['required'] and ('value' not in parameters):
                     raise ValueError("Field %s is required, but was \
                         not provided." % (field_name,))
 
@@ -170,6 +170,10 @@ class FixedWidth(object):
                 #if there's a hard-coded value in the config
                 if 'value' in parameters:
                     self.data[field_name] = parameters['value']
+
+            if parameters['required'] and self.data[field_name] is None:
+                # None gets checked last because it may be set with a default value
+                raise ValueError("None value not allowed for %s" % (field_name))
 
         return True
 
@@ -187,7 +191,7 @@ class FixedWidth(object):
         for field_name in [x[1] for x in self.ordered_fields]:
 
             if field_name in self.data:
-                datum = str(self.data[field_name])
+                datum = str(self.data[field_name] if not None else '')
             else:
                 datum = ''
 
