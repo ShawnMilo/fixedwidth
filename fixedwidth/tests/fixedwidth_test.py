@@ -8,6 +8,8 @@ import unittest
 from decimal import Decimal
 from copy import deepcopy
 
+import datetime
+
 from ..fixedwidth import FixedWidth
 
 SAMPLE_CONFIG = {
@@ -96,6 +98,17 @@ SAMPLE_CONFIG = {
         "padding": " "
         },
 
+    "date": {
+        "required": False,
+        "type": "date",
+        "default": datetime.datetime.strptime('20170101', '%Y%m%d'),
+        "start_pos": 101,
+        "end_pos": 109,
+        "alignment": "right",
+        "padding": " ",
+        "format": '%Y%m%d',
+        },
+
 }
 
 
@@ -121,7 +134,7 @@ class TestFixedWidth(unittest.TestCase):
 
         good = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100   98.6\r\n"
+            "032vegetarian             40.7128   -74.0059-100   98.6 20170101\r\n"
         )
 
         self.assertEquals(fw_string, good)
@@ -157,7 +170,7 @@ class TestFixedWidth(unittest.TestCase):
         fw_obj = FixedWidth(fw_config)
         fw_obj.line = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100  98.6"
+            "032vegetarian             40.7128   -74.0059-100  98.6 20170101"
         )
 
         values = fw_obj.data
@@ -169,6 +182,7 @@ class TestFixedWidth(unittest.TestCase):
         self.assertEquals(values["longitude"], Decimal('-74.0059'))
         self.assertEquals(values["elevation"], -100)
         self.assertEquals(values["temperature"], Decimal('98.6'))
+        self.assertEquals(values["date"], datetime.datetime.strptime('20170101', '%Y%m%d'))
 
 if __name__ == '__main__':
     unittest.main()
