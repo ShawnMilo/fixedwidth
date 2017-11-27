@@ -7,6 +7,8 @@ import unittest
 from decimal import Decimal, ROUND_UP
 from copy import deepcopy
 
+import datetime
+
 from ..fixedwidth import FixedWidth
 
 SAMPLE_CONFIG = {
@@ -95,11 +97,22 @@ SAMPLE_CONFIG = {
         "padding": " "
         },
 
+    "date": {
+        "required": False,
+        "type": "date",
+        "default": datetime.datetime.strptime('20170101', '%Y%m%d'),
+        "start_pos": 101,
+        "end_pos": 108,
+        "alignment": "right",
+        "padding": " ",
+        "format": '%Y%m%d',
+        },
+
     "decimal_precision": {
         "required": False,
         "type": "decimal",
         "default": 1,
-        "start_pos": 101,
+        "start_pos": 109,
         "length": 5,
         "precision": 3,
         "alignment": "right",
@@ -132,7 +145,7 @@ class TestFixedWidth(unittest.TestCase):
 
         good = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100   98.61.001\r\n"
+            "032vegetarian             40.7128   -74.0059-100   98.6201701011.001\r\n"
         )
 
         self.assertEqual(fw_string, good)
@@ -168,7 +181,7 @@ class TestFixedWidth(unittest.TestCase):
         fw_obj = FixedWidth(fw_config)
         fw_obj.line = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100   98.61.000\r\n"
+            "032vegetarian             40.7128   -74.0059-100   98.6201701011.000\r\n"
         )
 
         values = fw_obj.data
@@ -181,6 +194,7 @@ class TestFixedWidth(unittest.TestCase):
         self.assertEqual(values["elevation"], -100)
         self.assertEqual(values["temperature"], Decimal('98.6'))
         self.assertEqual(values["decimal_precision"], Decimal('1.000'))
+        self.assertEquals(values["date"], datetime.datetime.strptime('20170101', '%Y%m%d'))
 
     def test_required_is_none(self):
         """

@@ -2,6 +2,8 @@
 The FixedWidth class definition.
 """
 from decimal import Decimal, ROUND_HALF_EVEN
+
+from datetime import datetime, date
 from six import string_types, integer_types
 
 
@@ -39,6 +41,7 @@ class FixedWidth(object):
             'string': lambda x: str(self.data[x]),
             'decimal': self._get_decimal_data,
             'numeric': lambda x: str(self.data[x]),
+            'date': self._get_date_data,
         }
 
         self.line_end = kwargs.pop('line_end', '\r\n')
@@ -61,7 +64,16 @@ class FixedWidth(object):
                 raise ValueError(
                     "Not all required values provided for field %s" % (key,))
 
-            if value['type'] == 'decimal':
+            if value['type'] == 'date':
+                if 'format' in value:
+                    try:
+                        datetime.now().strftime(value['format'])
+                    except Exception:
+                        raise ValueError("Incorrect format string provided for field %s" % (key,))
+                else:
+                    raise ValueError("No format string provided for field %s" % (key,))
+
+            elif value['type'] == 'decimal':
                 if 'precision' in value and type(value['precision']) != int:
                     raise ValueError("Precision parameter for field %s must be an int" % (key,))
 
@@ -86,9 +98,9 @@ class FixedWidth(object):
                 raise ValueError("%s end_pos must be *after* start_pos." % (key,))
 
             #make sure authorized type was provided
-            if not value['type'] in ('string', 'integer', 'decimal', 'numeric'):
+            if not value['type'] in ('string', 'integer', 'decimal', 'numeric', 'date'):
                 raise ValueError("Field %s has an invalid type (%s). Allowed: 'string', \
-                    'integer', 'decimal', 'numeric'" % (key, value['type']))
+                    'integer', 'decimal', 'numeric', 'date" % (key, value['type']))
 
             #make sure alignment is 'left' or 'right'
             if not value['alignment'] in ('left', 'right'):
@@ -108,7 +120,7 @@ class FixedWidth(object):
                 if value['type'] == 'decimal':
                     value['default'] = Decimal(value['default'])
 
-                types = {'string': str, 'decimal': Decimal, 'integer': int}
+                types = {'string': str, 'decimal': Decimal, 'integer': int, 'date': datetime}
                 if not isinstance(value['default'], types[value['type']]):
                     raise ValueError("Default value for %s is not a valid %s" \
                         % (key, value['type']))
@@ -143,6 +155,7 @@ class FixedWidth(object):
             'decimal': lambda x: isinstance(x, Decimal),
             'integer': lambda x: isinstance(x, integer_types),
             'numeric': lambda x: str(x).isdigit(),
+            'date': lambda x: issubclass(x, date),
         }
 
         for field_name, parameters in self.config.items():
@@ -202,6 +215,9 @@ class FixedWidth(object):
         else:
             return str(self.data[field_name])
 
+    def _get_date_data(self, field_name):
+        return str(self.data[field_name].strftime(self.config[field_name]['format']))
+
     def _build_line(self):
 
         """
@@ -216,7 +232,7 @@ class FixedWidth(object):
         for field_name in [x[1] for x in self.ordered_fields]:
 
             if field_name in self.data:
-                datum = str(self.format_functions[(self.config[field_name]['type'])](field_name) if not None else ')
+                datum = str(self.format_functions[(self.config[field_name]['type'])](field_name) if not None else '')
             else:
                 datum = ''
 
@@ -251,6 +267,7 @@ class FixedWidth(object):
                 'string': lambda x: str(x).strip(),
                 'decimal': Decimal,
                 'numeric': lambda x: str(x).strip(),
+                'date': lambda x: datetime.strptime(x, self.config[field_name]['format']),
             }
 
             self.data[field_name] = conversion[self.config[field_name]\
