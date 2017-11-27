@@ -1,8 +1,7 @@
 """
 The FixedWidth class definition.
 """
-import decimal
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_EVEN
 from six import string_types, integer_types
 
 
@@ -192,7 +191,7 @@ class FixedWidth(object):
         if 'precision' in self.config[field_name]:
             rounding = self.config[field_name]['rounding'] \
                 if 'rounding' in self.config[field_name] \
-                else decimal.ROUND_HALF_EVEN
+                else ROUND_HALF_EVEN
             return str(Decimal(str(self.data[field_name])).
                         quantize(Decimal('0.%s' % ('0' *
                         self.config[field_name]['precision'])), rounding))

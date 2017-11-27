@@ -3,9 +3,8 @@
 """
 Tests for the FixedWidth class.
 """
-import decimal
 import unittest
-from decimal import Decimal
+from decimal import Decimal, ROUND_UP
 from copy import deepcopy
 
 from ..fixedwidth import FixedWidth
@@ -104,7 +103,7 @@ SAMPLE_CONFIG = {
         "length": 5,
         "precision": 3,
         "alignment": "right",
-        "rounding": decimal.ROUND_UP,
+        "rounding": ROUND_UP,
         "padding": " "
         },
 
