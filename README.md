@@ -30,6 +30,17 @@ Small example
             'padding': ' '
         },
 
+        'decimal': {
+            'required': True,
+            'type': 'decimal',
+            'precision': 2,
+            'rounding': decimal.ROUND_UP,
+            'start_pos': 31,
+            'end_pos': 35,
+            'alignment': 'left',
+            'padding': ' '
+        },
+
     }
 
 Notes:

@@ -1,7 +1,7 @@
 """
 The FixedWidth class definition.
 """
-
+import decimal
 from decimal import Decimal
 from six import string_types, integer_types
 
@@ -35,6 +35,13 @@ class FixedWidth(object):
             kwargs: optional, dict of values for the FixedWidth object
         """
 
+        self.format_functions = {
+            'integer': lambda x: str(self.data[x]),
+            'string': lambda x: str(self.data[x]),
+            'decimal': self._get_decimal_data,
+            'numeric': lambda x: str(self.data[x]),
+        }
+
         self.line_end = kwargs.pop('line_end', '\r\n')
         self.config = config
 
@@ -54,6 +61,10 @@ class FixedWidth(object):
                     'type', 'required', 'padding', 'alignment', 'start_pos')]):
                 raise ValueError(
                     "Not all required values provided for field %s" % (key,))
+
+            if value['type'] == 'decimal':
+                if 'precision' in value and type(value['precision']) != int:
+                    raise ValueError("Precision parameter for field %s must be an int" % (key,))
 
             #end position or length required
             if 'end_pos' not in value and 'length' not in value:
@@ -146,12 +157,13 @@ class FixedWidth(object):
                     % (field_name, parameters['type']))
 
                 #ensure value passed in is not too long for the field
-                if len(str(self.data[field_name])) > parameters['length']:
+                field_data = self.format_functions[(self.config[field_name]['type'])](field_name)
+                if len(str(field_data)) > parameters['length']:
                     raise ValueError("%s is too long (limited to %d \
                         characters)." % (field_name, parameters['length']))
 
                 if 'value' in parameters \
-                    and parameters['value'] != self.data[field_name]:
+                    and parameters['value'] != field_data:
 
                     raise ValueError("%s has a value in the config, \
                         and a different value was passed in." % (field_name,))
@@ -173,6 +185,20 @@ class FixedWidth(object):
 
         return True
 
+    def _get_decimal_data(self, field_name):
+        """
+        quantizes field if it is decimal type and precision is set
+        """
+        if 'precision' in self.config[field_name]:
+            rounding = self.config[field_name]['rounding'] \
+                if 'rounding' in self.config[field_name] \
+                else decimal.ROUND_HALF_EVEN
+            return str(Decimal(str(self.data[field_name])).
+                        quantize(Decimal('0.%s' % ('0' *
+                        self.config[field_name]['precision'])), rounding))
+        else:
+            return str(self.data[field_name])
+
     def _build_line(self):
 
         """
@@ -187,7 +213,7 @@ class FixedWidth(object):
         for field_name in [x[1] for x in self.ordered_fields]:
 
             if field_name in self.data:
-                datum = str(self.data[field_name])
+                datum = str(self.format_functions[(self.config[field_name]['type'])](field_name))
             else:
                 datum = ''
 

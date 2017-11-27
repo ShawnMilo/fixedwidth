@@ -3,7 +3,7 @@
 """
 Tests for the FixedWidth class.
 """
-
+import decimal
 import unittest
 from decimal import Decimal
 from copy import deepcopy
@@ -96,6 +96,18 @@ SAMPLE_CONFIG = {
         "padding": " "
         },
 
+    "decimal_precision": {
+        "required": False,
+        "type": "decimal",
+        "default": 1,
+        "start_pos": 101,
+        "length": 5,
+        "precision": 3,
+        "alignment": "right",
+        "rounding": decimal.ROUND_UP,
+        "padding": " "
+        },
+
 }
 
 
@@ -114,17 +126,17 @@ class TestFixedWidth(unittest.TestCase):
         fw_obj.update(
             last_name="Smith", first_name="Michael",
             age=32, meal="vegetarian", latitude=Decimal('40.7128'),
-            longitude=Decimal('-74.0059'), elevation=-100,
+            longitude=Decimal('-74.0059'), elevation=-100, decimal_precision=Decimal('1.0001'),
         )
 
         fw_string = fw_obj.line
 
         good = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100   98.6\r\n"
+            "032vegetarian             40.7128   -74.0059-100   98.61.001\r\n"
         )
 
-        self.assertEquals(fw_string, good)
+        self.assertEqual(fw_string, good)
 
     def test_update(self):
         """
@@ -137,15 +149,15 @@ class TestFixedWidth(unittest.TestCase):
         fw_obj.update(
             last_name="Smith", first_name="Michael",
             age=32, meal="vegetarian", latitude=Decimal('40.7128'),
-            longitude=Decimal('-74.0059'), elevation=-100,
+            longitude=Decimal('-74.0059'), elevation=-100, decimal_precision=1,
         )
 
         #change a value
         fw_obj.update(meal="Paleo")
-        self.assertEquals(fw_obj.data["meal"], "Paleo")
+        self.assertEqual(fw_obj.data["meal"], "Paleo")
 
         #nothing else should have changed
-        self.assertEquals(fw_obj.data["first_name"], "Michael")
+        self.assertEqual(fw_obj.data["first_name"], "Michael")
 
     def test_fw_to_dict(self):
         """
@@ -157,18 +169,19 @@ class TestFixedWidth(unittest.TestCase):
         fw_obj = FixedWidth(fw_config)
         fw_obj.line = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100  98.6"
+            "032vegetarian             40.7128   -74.0059-100   98.61.000\r\n"
         )
 
         values = fw_obj.data
-        self.assertEquals(values["first_name"], "Michael")
-        self.assertEquals(values["last_name"], "Smith")
-        self.assertEquals(values["age"], 32)
-        self.assertEquals(values["meal"], "vegetarian")
-        self.assertEquals(values["latitude"], Decimal('40.7128'))
-        self.assertEquals(values["longitude"], Decimal('-74.0059'))
-        self.assertEquals(values["elevation"], -100)
-        self.assertEquals(values["temperature"], Decimal('98.6'))
+        self.assertEqual(values["first_name"], "Michael")
+        self.assertEqual(values["last_name"], "Smith")
+        self.assertEqual(values["age"], 32)
+        self.assertEqual(values["meal"], "vegetarian")
+        self.assertEqual(values["latitude"], Decimal('40.7128'))
+        self.assertEqual(values["longitude"], Decimal('-74.0059'))
+        self.assertEqual(values["elevation"], -100)
+        self.assertEqual(values["temperature"], Decimal('98.6'))
+        self.assertEqual(values["decimal_precision"], Decimal('1.000'))
 
 if __name__ == '__main__':
     unittest.main()
