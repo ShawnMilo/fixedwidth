@@ -155,7 +155,7 @@ class FixedWidth(object):
             'decimal': lambda x: isinstance(x, Decimal),
             'integer': lambda x: isinstance(x, integer_types),
             'numeric': lambda x: str(x).isdigit(),
-            'date': lambda x: issubclass(x, date),
+            'date': lambda x: isinstance(x, date),
         }
 
         for field_name, parameters in self.config.items():
