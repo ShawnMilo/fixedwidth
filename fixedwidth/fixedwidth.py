@@ -121,7 +121,7 @@ class FixedWidth(object):
                     value['default'] = Decimal(value['default'])
 
                 types = {'string': str, 'decimal': Decimal, 'integer': int, 'date': datetime}
-                if not isinstance(value['default'], types[value['type']]):
+                if value['default'] is not None and not isinstance(value['default'], types[value['type']]):
                     raise ValueError("Default value for %s is not a valid %s" \
                         % (key, value['type']))
 
@@ -165,14 +165,16 @@ class FixedWidth(object):
                 if self.data[field_name] is None and 'default' in parameters:
                     self.data[field_name] = parameters['default']
 
-                #make sure passed in value is of the proper type
-                if not type_tests[parameters['type']](self.data[field_name]):
+                data = self.data[field_name]
+                # make sure passed in value is of the proper type
+                # but only if a value is set
+                if data and not type_tests[parameters['type']](data):
                     raise ValueError("%s is defined as a %s, \
                     but the value is not of that type." \
                     % (field_name, parameters['type']))
 
                 #ensure value passed in is not too long for the field
-                field_data = self.format_functions[(self.config[field_name]['type'])](field_name)
+                field_data = self._format_field(field_name)
                 if len(str(field_data)) > parameters['length']:
                     raise ValueError("%s is too long (limited to %d \
                         characters)." % (field_name, parameters['length']))
@@ -221,6 +223,18 @@ class FixedWidth(object):
     def _get_date_data(self, field_name):
         return str(self.data[field_name].strftime(self.config[field_name]['format']))
 
+    def _format_field(self, field_name):
+        """
+        Converts field data and returns it as a string.
+        """
+        data = self.data[field_name]
+        config = self.config[field_name]
+        if data is None:
+            # Empty fields can not be formatted
+            return ''
+        type = config['type']
+        return str(self.format_functions[type](field_name) if not None else '')
+
     def _build_line(self):
 
         """
@@ -235,7 +249,7 @@ class FixedWidth(object):
         for field_name in [x[1] for x in self.ordered_fields]:
 
             if field_name in self.data:
-                datum = str(self.format_functions[(self.config[field_name]['type'])](field_name) if not None else '')
+                datum = self._format_field(field_name)
             else:
                 datum = ''
 

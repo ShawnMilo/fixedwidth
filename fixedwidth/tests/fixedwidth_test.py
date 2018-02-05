@@ -119,7 +119,16 @@ SAMPLE_CONFIG = {
         "rounding": ROUND_UP,
         "padding": " "
         },
-
+    "none_date": {
+        "required": False,
+        "type": "date",
+        "default": None,
+        "start_pos": 114,
+        "end_pos": 120,
+        "alignment": "right",
+        "padding": " ",
+        "format": '%Y%m%d',
+    },
 }
 
 
@@ -145,7 +154,7 @@ class TestFixedWidth(unittest.TestCase):
 
         good = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100   98.6201701011.001\r\n"
+            "032vegetarian             40.7128   -74.0059-100   98.6201701011.001       \r\n"
         )
 
         self.assertEqual(fw_string, good)
@@ -181,7 +190,7 @@ class TestFixedWidth(unittest.TestCase):
         fw_obj = FixedWidth(fw_config)
         fw_obj.line = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100   98.6201701011.000\r\n"
+            "032vegetarian             40.7128   -74.0059-100   98.6201701011.000       \r\n"
         )
 
         values = fw_obj.data
@@ -195,6 +204,7 @@ class TestFixedWidth(unittest.TestCase):
         self.assertEqual(values["temperature"], Decimal('98.6'))
         self.assertEqual(values["decimal_precision"], Decimal('1.000'))
         self.assertEqual(values["date"], datetime.datetime.strptime('20170101', '%Y%m%d'))
+        self.assertEqual(values["none_date"], None)
 
     def test_required_is_none(self):
         """
@@ -223,7 +233,7 @@ class TestFixedWidth(unittest.TestCase):
 
         good = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100   98.6201701011.000\r\n"
+            "032vegetarian             40.7128   -74.0059-100   98.6201701011.000       \r\n"
         )
 
         self.assertEqual(fw_obj.line, good)
@@ -238,7 +248,7 @@ class TestFixedWidth(unittest.TestCase):
         fw_obj = FixedWidth(fw_config)
         fw_obj.line = (
             "Michael   Smith                              "
-            "032vegetarian             40.7128   -74.0059-100   98.620170101     \r\n"
+            "032vegetarian             40.7128   -74.0059-100   98.620170101             \r\n"
         )
 
 
