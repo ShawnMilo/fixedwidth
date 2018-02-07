@@ -9,7 +9,7 @@ from copy import deepcopy
 
 import datetime
 
-from ..fixedwidth import FixedWidth
+from fixedwidth import FixedWidth
 
 SAMPLE_CONFIG = {
 
