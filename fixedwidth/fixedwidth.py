@@ -2,6 +2,8 @@
 The FixedWidth class definition.
 """
 from decimal import Decimal, ROUND_HALF_EVEN
+
+from datetime import datetime, date
 from six import string_types, integer_types
 
 
@@ -39,6 +41,7 @@ class FixedWidth(object):
             'string': lambda x: str(self.data[x]),
             'decimal': self._get_decimal_data,
             'numeric': lambda x: str(self.data[x]),
+            'date': self._get_date_data,
         }
 
         self.line_end = kwargs.pop('line_end', '\r\n')
@@ -61,7 +64,16 @@ class FixedWidth(object):
                 raise ValueError(
                     "Not all required values provided for field %s" % (key,))
 
-            if value['type'] == 'decimal':
+            if value['type'] == 'date':
+                if 'format' in value:
+                    try:
+                        datetime.now().strftime(value['format'])
+                    except Exception:
+                        raise ValueError("Incorrect format string provided for field %s" % (key,))
+                else:
+                    raise ValueError("No format string provided for field %s" % (key,))
+
+            elif value['type'] == 'decimal':
                 if 'precision' in value and type(value['precision']) != int:
                     raise ValueError("Precision parameter for field %s must be an int" % (key,))
 
@@ -86,9 +98,9 @@ class FixedWidth(object):
                 raise ValueError("%s end_pos must be *after* start_pos." % (key,))
 
             #make sure authorized type was provided
-            if not value['type'] in ('string', 'integer', 'decimal', 'numeric'):
+            if not value['type'] in ('string', 'integer', 'decimal', 'numeric', 'date'):
                 raise ValueError("Field %s has an invalid type (%s). Allowed: 'string', \
-                    'integer', 'decimal', 'numeric'" % (key, value['type']))
+                    'integer', 'decimal', 'numeric', 'date" % (key, value['type']))
 
             #make sure alignment is 'left' or 'right'
             if not value['alignment'] in ('left', 'right'):
@@ -108,8 +120,8 @@ class FixedWidth(object):
                 if value['type'] == 'decimal':
                     value['default'] = Decimal(value['default'])
 
-                types = {'string': str, 'decimal': Decimal, 'integer': int}
-                if not isinstance(value['default'], types[value['type']]):
+                types = {'string': str, 'decimal': Decimal, 'integer': int, 'date': datetime}
+                if value['default'] is not None and not isinstance(value['default'], types[value['type']]):
                     raise ValueError("Default value for %s is not a valid %s" \
                         % (key, value['type']))
 
@@ -143,20 +155,26 @@ class FixedWidth(object):
             'decimal': lambda x: isinstance(x, Decimal),
             'integer': lambda x: isinstance(x, integer_types),
             'numeric': lambda x: str(x).isdigit(),
+            'date': lambda x: isinstance(x, date),
         }
 
         for field_name, parameters in self.config.items():
 
             if field_name in self.data:
 
-                #make sure passed in value is of the proper type
-                if not type_tests[parameters['type']](self.data[field_name]):
+                if self.data[field_name] is None and 'default' in parameters:
+                    self.data[field_name] = parameters['default']
+
+                data = self.data[field_name]
+                # make sure passed in value is of the proper type
+                # but only if a value is set
+                if data and not type_tests[parameters['type']](data):
                     raise ValueError("%s is defined as a %s, \
                     but the value is not of that type." \
                     % (field_name, parameters['type']))
 
                 #ensure value passed in is not too long for the field
-                field_data = self.format_functions[(self.config[field_name]['type'])](field_name)
+                field_data = self._format_field(field_name)
                 if len(str(field_data)) > parameters['length']:
                     raise ValueError("%s is too long (limited to %d \
                         characters)." % (field_name, parameters['length']))
@@ -182,6 +200,10 @@ class FixedWidth(object):
                 if 'value' in parameters:
                     self.data[field_name] = parameters['value']
 
+            if parameters['required'] and self.data[field_name] is None:
+                # None gets checked last because it may be set with a default value
+                raise ValueError("None value not allowed for %s" % (field_name))
+
         return True
 
     def _get_decimal_data(self, field_name):
@@ -198,6 +220,21 @@ class FixedWidth(object):
         else:
             return str(self.data[field_name])
 
+    def _get_date_data(self, field_name):
+        return str(self.data[field_name].strftime(self.config[field_name]['format']))
+
+    def _format_field(self, field_name):
+        """
+        Converts field data and returns it as a string.
+        """
+        data = self.data[field_name]
+        config = self.config[field_name]
+        if data is None:
+            # Empty fields can not be formatted
+            return ''
+        type = config['type']
+        return str(self.format_functions[type](field_name) if not None else '')
+
     def _build_line(self):
 
         """
@@ -212,7 +249,7 @@ class FixedWidth(object):
         for field_name in [x[1] for x in self.ordered_fields]:
 
             if field_name in self.data:
-                datum = str(self.format_functions[(self.config[field_name]['type'])](field_name))
+                datum = self._format_field(field_name)
             else:
                 datum = ''
 
@@ -247,10 +284,15 @@ class FixedWidth(object):
                 'string': lambda x: str(x).strip(),
                 'decimal': Decimal,
                 'numeric': lambda x: str(x).strip(),
+                'date': lambda x: datetime.strptime(x, self.config[field_name]['format']),
             }
 
-            self.data[field_name] = conversion[self.config[field_name]\
-                ['type']](fw_string[start_pos - 1:self.config[field_name]['end_pos']])
+            row = fw_string[start_pos - 1:self.config[field_name]['end_pos']]
+            if row.strip() == '' and 'default' in self.config[field_name]:
+                # Use default value if row is empty
+                self.data[field_name] = self.config[field_name]['default']
+            else:
+                self.data[field_name] = conversion[self.config[field_name]['type']](row)
 
         return self.data
 
