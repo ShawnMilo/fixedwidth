@@ -79,7 +79,7 @@ class FixedWidth(object):
 
             #end position or length required
             if 'end_pos' not in value and 'length' not in value:
-                raise ValueError("And end position or length is required for field %s" % (key,))
+                raise ValueError("An end position or length is required for field %s" % (key,))
 
             #end position and length must match if both are specified
             if all([x in value for x in ('end_pos', 'length')]):
@@ -147,7 +147,7 @@ class FixedWidth(object):
     def validate(self):
 
         """
-        ensure the data in self.data is consistant with self.config
+        Ensure the data in self.data is consistent with self.config
         """
 
         type_tests = {
