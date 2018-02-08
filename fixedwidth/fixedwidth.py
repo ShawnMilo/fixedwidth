@@ -22,12 +22,12 @@ class FixedWidth(object):
         start_pos   an integer; required
         length      an integer
         end_pos     an integer
+        format      a string, to format dates, required for date fields
     The following keys are only used when emitting fixed-width strings:
         alignment   a string; required
         padding     a string; required
         precision   an integer, to format decimals numbers
         rounding    a constant ROUND_xxx used when precision is set
-        format      a string, to format dates, required for date fields
 
     Notes:
         A field must have a start_pos and either an end_pos or a length.
