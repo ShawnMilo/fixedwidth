@@ -12,7 +12,22 @@ class FixedWidth(object):
     Class for converting between Python dictionaries and fixed-width
     strings.
 
-    Requires a 'config' dictonary. See unittest below for an example.
+    Requires a 'config' dictonary.
+    Each key of 'config' is the field name.
+    Each item of 'config' is itself a dictionary with the following keys:
+        required    a boolean; required
+        type        a string; required
+        value       (will be coerced into 'type'); hard-coded value
+        default     (will be coerced into 'type')
+        start_pos   an integer; required
+        length      an integer
+        end_pos     an integer
+    The following keys are only used when emitting fixed-width strings:
+        alignment   a string; required
+        padding     a string; required
+        precision   an integer, to format decimals numbers
+        rounding    a constant ROUND_xxx used when precision is set
+        format      a string, to format dates, required for date fields
 
     Notes:
         A field must have a start_pos and either an end_pos or a length.
@@ -20,11 +35,9 @@ class FixedWidth(object):
 
         A field may not have a default value if it is required.
 
-        Type may be string, integer, or decimal.
+        Type may be string, integer, decimal, numeric, or date.
 
         Alignment and padding are required.
-
-        'required' must have a value.
 
     """
 
