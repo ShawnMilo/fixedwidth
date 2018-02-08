@@ -9,7 +9,10 @@ from copy import deepcopy
 
 import datetime
 
-from fixedwidth import FixedWidth
+try:
+    from fixedwidth import FixedWidth
+except ImportError:
+    from fixedwidth.fixedwidth import FixedWidth
 
 SAMPLE_CONFIG = {
 
