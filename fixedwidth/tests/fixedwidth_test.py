@@ -103,7 +103,7 @@ SAMPLE_CONFIG = {
     "date": {
         "required": False,
         "type": "date",
-        "default": datetime.datetime.strptime('20170101', '%Y%m%d'),
+        "default": "20170101",
         "start_pos": 101,
         "end_pos": 108,
         "alignment": "right",
