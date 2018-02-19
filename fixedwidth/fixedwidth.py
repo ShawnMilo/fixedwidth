@@ -132,6 +132,8 @@ class FixedWidth(object):
                 #ensure default value provided matches type
                 if value['type'] == 'decimal':
                     value['default'] = Decimal(value['default'])
+                elif value['type'] == 'date' and isinstance(value['default'], string_types):
+                    value['default'] = datetime.strptime(value['default'], value['format'])
 
                 types = {'string': str, 'decimal': Decimal, 'integer': int, 'date': datetime}
                 if value['default'] is not None and not isinstance(value['default'], types[value['type']]):
