@@ -130,7 +130,7 @@ class FixedWidth(object):
                         can not have a default value" % (key,))
 
                 #ensure default value provided matches type
-                if value['type'] == 'decimal':
+                if value['type'] == 'decimal' and value['default'] is not None:
                     value['default'] = Decimal(value['default'])
                 elif value['type'] == 'date' and isinstance(value['default'], string_types):
                     value['default'] = datetime.strptime(value['default'], value['format'])
