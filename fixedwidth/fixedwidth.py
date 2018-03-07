@@ -140,6 +140,17 @@ class FixedWidth(object):
                     raise ValueError("Default value for %s is not a valid %s" \
                         % (key, value['type']))
 
+            #if a precision was provided, make sure
+            #it doesn't violate rules
+            if value['type'] == 'decimal' and 'precision' in value:
+
+                #make sure authorized type was provided
+                if not isinstance(value['precision'], int):
+                    raise ValueError("Precision parameter for field %s "
+                        "must be an int" % (key,))
+
+                value.setdefault('rounding', ROUND_HALF_EVEN)
+
         #ensure start_pos and end_pos or length is correct in config
         current_pos = 1
         for start_pos, field_name in self.ordered_fields:
@@ -226,12 +237,10 @@ class FixedWidth(object):
         quantizes field if it is decimal type and precision is set
         """
         if 'precision' in self.config[field_name]:
-            rounding = self.config[field_name]['rounding'] \
-                if 'rounding' in self.config[field_name] \
-                else ROUND_HALF_EVEN
             return str(Decimal(str(self.data[field_name])).
                         quantize(Decimal('0.%s' % ('0' *
-                        self.config[field_name]['precision'])), rounding))
+                        self.config[field_name]['precision'])),
+                        self.config[field_name]['rounding']))
         else:
             return str(self.data[field_name])
 
