@@ -6,6 +6,8 @@ Tests for the FixedWidth class.
 import unittest
 from decimal import Decimal, ROUND_UP
 from copy import deepcopy
+import sys
+sys.path.append("..")
 
 import datetime
 

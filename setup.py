@@ -1,17 +1,19 @@
-from distutils.core import setup
+import setuptools
+with open('README.md', 'r') as readme:
+    README_TEXT = readme.read()
 
-setup(
+setuptools.setup(
     name='FixedWidth',
     packages=['fixedwidth'],
-    version='1.2',
+    version='1.3',
     description='Two-way fixed-width <--> Python dict converter.',
+    long_description = README_TEXT,
+    long_description_content_type='text/markdown',
     author='Shawn Milochik',
     author_email='shawn@milochik.com',
     url='https://github.com/ShawnMilo/fixedwidth',
-    download_url='https://github.com/ShawnMilo/fixedwidth/archive/1.2.tar.gz',
     install_requires=['six'],
     license='BSD',
-    zip_safe=False,
     keywords='fixed width',
     test_suite="fixedwidth.tests",
     classifiers=[],
