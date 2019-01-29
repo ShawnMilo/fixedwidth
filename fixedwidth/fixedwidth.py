@@ -4,6 +4,7 @@ The FixedWidth class definition.
 
 from decimal import Decimal
 from six import string_types, integer_types
+from unidecode import unidecode
 
 
 class FixedWidth(object):
@@ -190,7 +191,10 @@ class FixedWidth(object):
         for field_name in [x[1] for x in self.ordered_fields]:
 
             if field_name in self.data:
-                datum = str(self.data[field_name])
+                if isinstance(self.data[field_name], unicode):
+                    datum = unidecode(self.data[field_name])
+                else:
+                    datum = str(self.data[field_name])
             else:
                 datum = ''
 
