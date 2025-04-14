@@ -58,6 +58,7 @@ class FixedWidth(object):
         }
 
         self.line_end = kwargs.pop('line_end', '\r\n')
+        self.fixed_point = kwargs.pop('fixed_point', False)
         self.config = config
 
         self.data = {}
@@ -237,13 +238,15 @@ class FixedWidth(object):
         """
         quantizes field if it is decimal type and precision is set
         """
+        value = str(self.data[field_name])
         if 'precision' in self.config[field_name]:
-            return str(Decimal(str(self.data[field_name])).
+            value = str(Decimal(value).
                         quantize(Decimal('0.%s' % ('0' *
                         self.config[field_name]['precision'])),
                         self.config[field_name]['rounding']))
-        else:
-            return str(self.data[field_name])
+        if self.fixed_point:
+            value = value.replace('.', '')
+        return value
 
     def _get_date_data(self, field_name):
         return str(self.data[field_name].strftime(self.config[field_name]['format']))
