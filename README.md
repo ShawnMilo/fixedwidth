@@ -10,48 +10,50 @@ Requires a 'config' dictonary. See unit tests for full example.
 
 Small example
 
-    SAMPLE_CONFIG = {
+```python
+SAMPLE_CONFIG = {
 
-        'first_name': {
-            'required': True,
-            'type': 'string',
-            'start_pos': 1,
-            'end_pos': 10,
-            'alignment': 'left',
-            'padding': ' '
-        },
+	'first_name': {
+		'required': True,
+		'type': 'string',
+		'start_pos': 1,
+		'end_pos': 10,
+		'alignment': 'left',
+		'padding': ' '
+	},
 
-        'last_name': {
-            'required': True,
-            'type': 'string',
-            'start_pos': 11,
-            'end_pos': 30,
-            'alignment': 'left',
-            'padding': ' '
-        },
+	'last_name': {
+		'required': True,
+		'type': 'string',
+		'start_pos': 11,
+		'end_pos': 30,
+		'alignment': 'left',
+		'padding': ' '
+	},
 
-        'date': {
-            'required': True,
-            'type': 'date',
-            'start_pos': 31,
-            'end_pos': 38,
-            'alignment': 'left',
-            'format': '%Y%m%d',
-            'padding': ' '
-        },
+	'date': {
+		'required': True,
+		'type': 'date',
+		'start_pos': 31,
+		'end_pos': 38,
+		'alignment': 'left',
+		'format': '%Y%m%d',
+		'padding': ' '
+	},
 
-        'decimal': {
-            'required': True,
-            'type': 'decimal',
-            'precision': 2,
-            'rounding': decimal.ROUND_UP,
-            'start_pos': 38,
-            'end_pos': 42,
-            'alignment': 'left',
-            'padding': ' '
-        },
+	'decimal': {
+		'required': True,
+		'type': 'decimal',
+		'precision': 2,
+		'rounding': decimal.ROUND_UP,
+		'start_pos': 38,
+		'end_pos': 42,
+		'alignment': 'left',
+		'padding': ' '
+	},
 
-    }
+}
+```
 
 Notes:
 
